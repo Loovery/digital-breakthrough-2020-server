@@ -1,21 +1,24 @@
 <?php 
-include 'db.php';
-$db = new db;
-$list = $db->mrow('SELECT `name` FROM `NewPhoto` WHERE `old` = 0');
+require $_SERVER["DOCUMENT_ROOT"].'/vendor/autoload.php';
+//$nameVideo = 'video.mkv';
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
+$list = $redis->keys('*');
+$arr = [];
 foreach($list as $lists){
-    $phot.="'";
-    $phot.=$lists[name];
-    $phot.="'";
-    $phot.=',';
+        $req = $redis->lrange($lists, 0, -1);
+        foreach ($req as $key => $request){
+           $exp = explode('.',$request);
+           $arr += [$exp[0]=>$exp[1]];
+        }
 }
- $phot = substr($phot, 0, -1);
- 
-$timer = $db->mrow("SELECT `date_time` FROM `NewPhoto` ORDER BY `date_time` DESC LIMIT 1");
-$timer = $timer[0]["date_time"];
-$currentDate = strtotime($timer);
-$futureDate = $currentDate+(60*30+1);
-$formatDate = date("Y-m-d H:i:s", $futureDate);
+foreach($arr as $key =>$arrs){
+   echo $key.'</br>';
+   echo $arrs.'</br>';
+   echo '<button>модерировано</button>';
+}
 ?>
+<!--
 <!doctype html>
 <html lang="en">
   <head>
@@ -246,4 +249,4 @@ function post(name,dis){
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </body>
-</html>
+</html>-->

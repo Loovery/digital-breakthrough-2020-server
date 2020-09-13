@@ -1,8 +1,8 @@
 <?php
-//require 'vendor/autoload.php';
+require $_SERVER["DOCUMENT_ROOT"].'/vendor/autoload.php';
 //$nameVideo = 'video.mkv';
-//$redis = new Redis();
-//$redis->connect('127.0.0.1', 6379);
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
 //
 //$ffmpeg = FFMpeg\FFMpeg::create();
 //$video = $ffmpeg->open($nameVideo);
@@ -22,32 +22,28 @@
 //$p = $redis->lrange($nameVideo,0,-1);
 //var_dump($p);
 $file_get = $_SERVER["DOCUMENT_ROOT"] . "/modules/log/get.log";
+$file = $_SERVER["DOCUMENT_ROOT"] . "/modules/log/";
  if($json = file_get_contents("php://input")) {
-     $base64_string = $json["base64"];
-     $content = base64_decode($base64_string);
-     $name = substr($base64_string, 0, 5);
-     $file = fopen(__DIR__.'/video/'.$name.'mp4', "wb");
-     fwrite($file, $content);
-    fclose($file);
-  }
-
-$file_post = $_SERVER["DOCUMENT_ROOT"] . "/modules/log/post.log";
-
-if (!empty($_GET)) {
-    $fw = fopen($file_get, "a");
-    fwrite($fw, "GET " . var_export($_GET, true));
+      $fw = fopen($file_get, "a");
+     fwrite($fw, "POST " . var_export($json, true));
     fclose($fw);
-       error_log($_GET, 0);
-       var_dump($_GET);
-}
+           $json = json_decode($json, true);
+           $name = $json[name];
+           $base64 = $json[base64];
+           $userid = $json[userId];
+           $videoid = $json[videoId];
+           $type = $json[type];
+          $content= base64_decode($base64);
+          if($type == 'video/mp4'){
+              $videop = $videoid.'.mp4';
+               $file = fopen($file.$videop, 'w');    
+            fwrite($file, $content);
+            fclose($file);
+          }
+           $videop = $videoid.'.mov';
+           $file = fopen($file.$videop, 'w');    
+            fwrite($file, $content);
+            fclose($file);
+ $redis->rPush($userid, $videoid.'.moderation');   }
+ 
 
-if (!empty($_POST)) {
-    $fw = fopen($file_post, "a");
-    fwrite($fw, "POST " . var_export($_POST, true));
-    fclose($fw);
-       error_log($_POST, 0);
-       var_dump($_POST);
-
-}
-
-?>
